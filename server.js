@@ -15,8 +15,7 @@ app.use(session({
     secret: secret,
     resave: false,
     saveUninitialized: false
-}))
-
+}));
 
 mongoose.connect(DATABASE_URL, {
     useNewUrlParser: true,

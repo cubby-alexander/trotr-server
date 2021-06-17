@@ -22,12 +22,34 @@ userRouter.put('/:id', async (req, res) => {
         .catch((error) => console.log(error));
     User.findByIdAndUpdate(req.params.id, req.body).then((updatedUser) => res.send(updatedUser))
         .catch((error) => res.send(error))
-})
+});
+
+userRouter.put('/:id/domestic', async (req, res) => {
+    await User.findById(req.params.id)
+        .then((foundUser) => {
+            foundUser.domestic = req.body;
+            foundUser.save(() => {});
+            res.send(foundUser);
+        })
+        .catch((err) => console.log(err))
+});
+
+userRouter.put('/:id/trip', async (req, res) => {
+    await User.findById(req.params.id)
+        .then(foundUser => {
+        foundUser.trips.push(req.body)
+
+    })
+        .catch(error => console.log(error))
+});
 
 // Create
 userRouter.post('/', async (req, res) => {
-    User.create(req.body).then((newUser) => res.send(newUser)).catch((error) => res.send(error));
-})
+    console.log(req.body);
+    User.create(req.body)
+        .then((newUser) => res.send(newUser))
+        .catch((error) => res.send(error));
+});
 
 // Show
 userRouter.get('/:id', (req, res) => {
