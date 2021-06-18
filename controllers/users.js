@@ -51,9 +51,18 @@ userRouter.post('/', async (req, res) => {
         .catch((error) => res.send(error));
 });
 
+userRouter.post('/login', (req, res) => {
+    console.log(req.body, "find user");
+    User.findOne({email: req.body.email, password: req.body.password}, (err, foundUser) => {
+        res.send(foundUser)
+    })
+})
+
 // Show
 userRouter.get('/:id', (req, res) => {
-
+    User.findOne({_id: req.params.id}, (err, foundUser) => {
+        res.send(foundUser)
+    })
 })
 
 module.exports = userRouter;
