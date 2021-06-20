@@ -18,10 +18,8 @@ userRouter.delete('/:id', async (req, res) => {
 })
 
 // Update
-userRouter.put('/:id', async (req, res) => {
-    console.log("put received", req.files, req.body);
-    if (req.files !== undefined) {
-        console.log("files found")
+userRouter.put('/:id/avatar', async (req, res) => {
+    if (req.files !== null) {
         const avatar = req.files.avatar;
         avatar.mv(`./uploads/${avatar.name}`);
         await cloudinary.uploader.upload(`./uploads/${avatar.name}`)
@@ -31,19 +29,19 @@ userRouter.put('/:id', async (req, res) => {
             })
             .catch((error) => console.log(error));
     }
-    User.findOneAndUpdate({_id: req.params.id}, {$set: req.body}).then((updatedUser) => {
-        console.log(updatedUser, "this is happening");
-        res.send(updatedUser)
-    })
-        .catch((error) => console.log(error))
+    User.findOneAndUpdate({_id: req.params.id}, req.body)
+        .then((updatedUser) => {
+            console.log(updatedUser, "this is happening");
+            res.send(updatedUser)
+        })
+        .catch((error) => console.log(error));
 });
 
-userRouter.put('/:id/domestic', async (req, res) => {
-    await User.findById(req.params.id)
-        .then((foundUser) => {
-            foundUser.domestic = req.body;
-            foundUser.save(() => {});
-            res.send(foundUser);
+userRouter.put('/:id', async (req, res) => {
+    await User.findOneAndUpdate({_id: req.params.id}, {$set: req.body})
+        .then((updatedUser) => {
+            console.log(updatedUser);
+            res.send(updatedUser);
         })
         .catch((err) => console.log(err))
 });
