@@ -11,17 +11,31 @@ cloudinary.config({
 });
 
 // Delete
+userRouter.delete('/:id', async (req, res) => {
+    User.findByIdAndDelete(req.params.id)
+        .then(res => console.log(res))
+        .catch(err => console.log(err))
+})
 
 // Update
 userRouter.put('/:id', async (req, res) => {
-    const avatar = req.files.avatar;
-    avatar.mv(`./uploads/${avatar.name}`);
-    await cloudinary.uploader.upload(`./uploads/${avatar.name}`).then((result) => {
-        req.body.avatar = result.secure_url;
+    console.log("put received", req.files, req.body);
+    if (req.files !== undefined) {
+        console.log("files found")
+        const avatar = req.files.avatar;
+        avatar.mv(`./uploads/${avatar.name}`);
+        await cloudinary.uploader.upload(`./uploads/${avatar.name}`)
+            .then((result) => {
+                req.body.avatar = result.secure_url;
+                console.log("secure url received and set", result, req.body)
+            })
+            .catch((error) => console.log(error));
+    }
+    User.findOneAndUpdate({_id: req.params.id}, {$set: req.body}).then((updatedUser) => {
+        console.log(updatedUser, "this is happening");
+        res.send(updatedUser)
     })
-        .catch((error) => console.log(error));
-    User.findByIdAndUpdate(req.params.id, req.body).then((updatedUser) => res.send(updatedUser))
-        .catch((error) => res.send(error))
+        .catch((error) => console.log(error))
 });
 
 userRouter.put('/:id/domestic', async (req, res) => {

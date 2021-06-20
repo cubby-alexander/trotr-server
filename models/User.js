@@ -30,6 +30,7 @@ const userSchema = new Schema({
         avatar: {type: String, required: false},
         email: {type: String, required: true},
         password: {type: String, required: true},
+        phone: {type: String, required: false},
         domestic: domesticSchema,
         trips: [tripSchema],
         pending: [{type: Schema.Types.ObjectId, ref: 'User'}],
