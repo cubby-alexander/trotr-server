@@ -5,7 +5,7 @@
 //     end: String,
 //     lat: mongoose.Decimal128,
 //     lng: mongoose.Decimal128,
-//     social_fence: Number,
+//     radius: Number,
 // })
 //
 // const Travel = mongoose.model('Travel', travelSchema);

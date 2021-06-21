@@ -3,7 +3,7 @@
 // const domesticSchema = new mongoose.Schema({
 //     lat: { type: mongoose.Decimal128, required: true },
 //     lng: { type: mongoose.Decimal128, required: true },
-//     social_fence: { type: Number, required: true },
+//     radius: { type: Number, required: true },
 //     sleep_start: { type: Number, required: true },
 //     sleep_end: { type: Number, required: true },
 //     work_start: Number,

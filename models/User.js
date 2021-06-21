@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 const travelSchema = new Schema({
         start: String,
         end: String,
-        lat: mongoose.Decimal128,
-        lng: mongoose.Decimal128,
-        social_fence: Number,
+        lat: Number,
+        lng: Number,
+        radius: Number,
 })
 
 const tripSchema = new Schema({
@@ -14,15 +14,15 @@ const tripSchema = new Schema({
 })
 
 const domesticSchema = new Schema({
-        lat: { type: mongoose.Decimal128, required: false },
-        lng: { type: mongoose.Decimal128, required: false },
-        social_fence: { type: Number, required: false },
+        lat: { type: Number, required: false },
+        lng: { type: Number, required: false },
+        radius: { type: Number, required: false },
         sleep_start: { type: Number, required: false },
         sleep_end: { type: Number, required: false },
         work_start: Number,
         work_end: Number,
-        work_lat: mongoose.Decimal128,
-        work_lng: mongoose.Decimal128,
+        work_lat: Number,
+        work_lng: Number,
 });
 
 const userSchema = new Schema({

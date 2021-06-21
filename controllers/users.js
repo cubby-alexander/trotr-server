@@ -3,6 +3,7 @@ const userRouter = express.Router();
 const cloudinary = require('cloudinary').v2;
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -39,9 +40,10 @@ userRouter.put('/:id/avatar', async (req, res) => {
 
 userRouter.put('/:id', async (req, res) => {
     await User.findOneAndUpdate({_id: req.params.id}, {$set: req.body})
-        .then((updatedUser) => {
-            console.log(updatedUser);
-            res.send(updatedUser);
+        .then((foundUser) => {
+            jwt.sign({foundUser}, process.env.SECRET, (err, token) => {
+                res.json({token, message: "Setup successful"})
+            })
         })
         .catch((err) => console.log(err))
 });
@@ -57,23 +59,49 @@ userRouter.put('/:id/trip', async (req, res) => {
 
 // Create
 userRouter.post('/', async (req, res) => {
-    console.log(req.body);
+    const hashedPass = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+    req.body.password = hashedPass;
     User.create(req.body)
-        .then((newUser) => res.send(newUser))
+        .then((newUser) => {
+            jwt.sign({newUser}, process.env.SECRET, (err, token) => {
+                res.json({token, message: "User creation successful"})
+            })
+        })
         .catch((error) => res.send(error));
 });
 
-userRouter.post('/login', (req, res) => {
-    console.log(req.body, "find user");
-    User.findOne({email: req.body.email, password: req.body.password}, (err, foundUser) => {
-        res.send(foundUser)
-    })
+userRouter.post('/login', async (req, res) => {
+    console.log("Looking for user " + req.body.email)
+    if (req.body.password) {
+        await User.findOne({email: req.body.email})
+            .then(foundUser => {
+                if (foundUser === null) {
+                    res.json({message: "User email or password incorrect."})
+                } else {
+                    const passwordsMatch = bcrypt.compareSync(req.body.password, foundUser.password);
+                    if (passwordsMatch) {
+                        console.log("Passwords match");
+                        jwt.sign({foundUser}, process.env.SECRET, (err, token) => {
+                            res.json({token, message: "Login successful"})
+                        })
+                    } else {
+                        res.json({message: "User email or password incorrect."})
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
 })
 
 // Show
 userRouter.get('/:id', (req, res) => {
+    console.log("This is happening");
     User.findOne({_id: req.params.id}, (err, foundUser) => {
-        res.send(foundUser)
+        jwt.sign({foundUser}, process.env.SECRET, (err, token) => {
+            res.json({token, message: "Found user"})
+        })
     })
 })
 
