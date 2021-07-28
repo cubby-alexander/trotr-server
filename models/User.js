@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Trip = require('./Trip');
 const Schema = mongoose.Schema;
 
 const travelSchema = new Schema({
@@ -7,10 +8,7 @@ const travelSchema = new Schema({
         lat: Number,
         lng: Number,
         radius: Number,
-})
-
-const tripSchema = new Schema({
-        travel_legs: [travelSchema]
+        trip: {type: Schema.Types.ObjectId, ref: 'Trip'}
 })
 
 const domesticSchema = new Schema({
@@ -32,7 +30,7 @@ const userSchema = new Schema({
         password: {type: String, required: true},
         phone: {type: String, required: false},
         domestic: domesticSchema,
-        trips: [tripSchema],
+        trips: [{type: Schema.Types.ObjectId, ref: 'Trip'}],
         pending: [{type: Schema.Types.ObjectId, ref: 'User'}],
         requested: [{type: Schema.Types.ObjectId, ref: 'User'}],
         current: [{type: Schema.Types.ObjectId, ref: 'User'}],

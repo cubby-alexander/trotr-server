@@ -1,6 +1,7 @@
 const express = require('express');
 const userRouter = express.Router();
 const cloudinary = require('cloudinary').v2;
+const Trip = require('../models/Trip');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -38,8 +39,18 @@ userRouter.put('/:id/avatar', async (req, res) => {
         .catch((error) => console.log(error));
 });
 
+userRouter.put('/:id/domestic', async (req, res) => {
+    await User.findOneAndUpdate({_id: req.params.id}, {$set: {domestic: req.body}})
+        .then((foundUser) => {
+            jwt.sign({foundUser}, process.env.SECRET, (err, token) => {
+                res.json({token, message: "Setup successful"})
+            })
+        })
+        .catch((err) => console.log(err))
+});
+
 userRouter.put('/:id', async (req, res) => {
-    await User.findOneAndUpdate({_id: req.params.id}, {$set: req.body})
+    await User.findOneAndUpdate({_id: req.params.id}, {$set: {domestic: req.body}})
         .then((foundUser) => {
             jwt.sign({foundUser}, process.env.SECRET, (err, token) => {
                 res.json({token, message: "Setup successful"})
@@ -49,12 +60,23 @@ userRouter.put('/:id', async (req, res) => {
 });
 
 userRouter.put('/:id/trip', async (req, res) => {
-    await User.findById(req.params.id)
-        .then(foundUser => {
-        foundUser.trips.push(req.body)
-
-    })
-        .catch(error => console.log(error))
+    try {
+        console.log("Trip creation")
+        const trip = await Trip.create({user: req.params.id, travel_legs: req.body.travel_legs});
+        await trip.save();
+        console.log("Saved and updating")
+        const userById = await User.findById(req.params.id)
+        userById.trips.push(trip);
+        await userById.save()
+            .then((updatedUser) => {
+                console.log("Response initiated", updatedUser)
+                jwt.sign({updatedUser}, process.env.SECRET, (err, token) => {
+                    res.json({token, message: "Trip update successful"})
+                })
+            })
+    } catch (e) {
+        console.log(e)
+    }
 });
 
 // Create
