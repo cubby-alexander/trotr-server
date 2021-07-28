@@ -2,6 +2,7 @@ const express = require('express');
 const userRouter = express.Router();
 const cloudinary = require('cloudinary').v2;
 const Trip = require('../models/Trip');
+const Leg = require('../models/Leg')
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -62,9 +63,21 @@ userRouter.put('/:id', async (req, res) => {
 userRouter.put('/:id/trip', async (req, res) => {
     try {
         console.log("Trip creation")
-        const trip = await Trip.create({user: req.params.id, travel_legs: req.body.travel_legs});
-        await trip.save();
-        console.log("Saved and updating")
+        const trip = await Trip.create({user: req.params.id, travel_legs: []});
+        const legs = req.body.travel_legs;
+        let newLegs = []
+        legs.map(async leg => {
+            const newLeg = await Leg.create({
+                trip: trip._id,
+                start: leg.start,
+                end: leg.end,
+                lat: leg.lat,
+                lng: leg.lng,
+                radius: leg.radius
+            });
+            trip.travel_legs.push(newLeg);
+            await trip.save();
+        });
         const userById = await User.findById(req.params.id)
         userById.trips.push(trip);
         await userById.save()

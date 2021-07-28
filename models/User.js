@@ -1,15 +1,5 @@
 const mongoose = require('mongoose');
-const Trip = require('./Trip');
 const Schema = mongoose.Schema;
-
-const travelSchema = new Schema({
-        start: String,
-        end: String,
-        lat: Number,
-        lng: Number,
-        radius: Number,
-        trip: {type: Schema.Types.ObjectId, ref: 'Trip'}
-})
 
 const domesticSchema = new Schema({
         lat: { type: Number, required: false },
