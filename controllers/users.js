@@ -13,6 +13,15 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
+userRouter.get('/', async (req, res) => {
+    try {
+        await User.find({})
+            .then(users => res.send(users))
+    } catch (e) {
+        console.log(e)
+    }
+})
+
 // Delete
 userRouter.delete('/:id', async (req, res) => {
     User.findByIdAndDelete(req.params.id)
@@ -94,6 +103,7 @@ userRouter.put('/:id/trip', async (req, res) => {
 
 // Create
 userRouter.post('/', async (req, res) => {
+    console.log(req.body);
     const hashedPass = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
     req.body.password = hashedPass;
     User.create(req.body)
