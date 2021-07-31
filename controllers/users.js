@@ -104,8 +104,7 @@ userRouter.put('/:id/trip', async (req, res) => {
 // Create
 userRouter.post('/', async (req, res) => {
     console.log(req.body);
-    const hashedPass = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
-    req.body.password = hashedPass;
+    req.body.password = await bcrypt.hashSync(req.body.password, 10);
     User.create(req.body)
         .then((newUser) => {
             jwt.sign({newUser}, process.env.SECRET, (err, token) => {
@@ -116,17 +115,17 @@ userRouter.post('/', async (req, res) => {
 });
 
 userRouter.post('/login', async (req, res) => {
-    console.log("Looking for user " + req.body.email)
+    console.log("Looking for user " + req.body.password);
     if (req.body.password) {
         await User.findOne({email: req.body.email})
-            .then(foundUser => {
+            .then(async foundUser => {
                 if (foundUser === null) {
                     res.json({message: "User email or password incorrect."})
                 } else {
-                    const passwordsMatch = bcrypt.compareSync(req.body.password, foundUser.password);
+                    const passwordsMatch = await bcrypt.compareSync(req.body.password, foundUser.password);
                     if (passwordsMatch) {
                         console.log("Passwords match");
-                        jwt.sign({foundUser}, process.env.SECRET, (err, token) => {
+                        jwt.sign({foundUser}, process.env.SECRET, {expiresIn: "24h"}, (err, token) => {
                             res.json({token, message: "Login successful"})
                         })
                     } else {
