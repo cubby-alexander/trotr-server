@@ -14,12 +14,9 @@ cloudinary.config({
 });
 
 userRouter.get('/', async (req, res) => {
-    try {
-        await User.find({})
-            .then(users => res.send(users))
-    } catch (e) {
-        console.log(e)
-    }
+    User.find({})
+        .then(users => res.send(users))
+        .catch(err => console.log(e))
 })
 
 // Delete
